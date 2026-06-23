@@ -1,14 +1,100 @@
-# astrbot-plugin-helloworld
+[qq]:https://qm.qq.com/q/fELAuy7Ikg
+[dz]:https://github.com/HAGoStudio/astrbot_plugin_qqAI
 
-AstrBot 插件模板 / A template plugin for AstrBot plugin feature
+# QQ AI 功能插件 (qqAI)
 
-> [!NOTE]
-> This repo is just a template of [AstrBot](https://github.com/AstrBotDevs/AstrBot) Plugin.
-> 
-> [AstrBot](https://github.com/AstrBotDevs/AstrBot) is an agentic assistant for both personal and group conversations. It can be deployed across dozens of mainstream instant messaging platforms, including QQ, Telegram, Feishu, DingTalk, Slack, LINE, Discord, Matrix, etc. In addition, it provides a reliable and extensible conversational AI infrastructure for individuals, developers, and teams. Whether you need a personal AI companion, an intelligent customer support agent, an automation assistant, or an enterprise knowledge base, AstrBot enables you to quickly build AI applications directly within your existing messaging workflows.
+## ✨ 功能
+ - 自动回复
+ - 指令回复
+ - 分支对话
+ - 进群验证
+ - 退群通知
+ - 私信反馈意见
+ - 轻量的学习功能（不是真正的学习能力，从关键词词库学习 不能当真的AI，当一个不需要联网和token的机器人吧）
+## 📦 安装方法
 
-# Supports
+1. 将本项目下载至 AstrBot 的 `data/plugins` 目录下并解压
+2. 将本项目资源文件下载至 AstrBot 的`data/plugin_data`目录下并解压
+3. 确保`data/plugins` 目录和`data/plugin_data`目录下文件夹名为 `astrbot_plugin_qqAI`
+4. 重启 AstrBot
+5. 注意：本项目在群内获取（[仓库][dz]）
 
-- [AstrBot Repo](https://github.com/AstrBotDevs/AstrBot)
-- [AstrBot Plugin Development Docs (Chinese)](https://docs.astrbot.app/dev/star/plugin-new.html)
-- [AstrBot Plugin Development Docs (English)](https://docs.astrbot.app/en/dev/star/plugin-new.html)
+## 🚀 使用方法
+
+所有文件路径均在`/root/AstrBot/data/plugin_data/astrbot_plugin_qqAI`下
+
+### zdhf.json文件如何配置（直接配置文件）
+| 名称 | 介绍 | 示例 |
+|------|------|------|
+| gjc  | 关键词（触发词）和对应的回复内容 | `{"检测的内容": "收到后的回复"}` |
+| sfjt | 是否接着监听（`true` 表示匹配后继续匹配下一条规则，`false` 表示匹配后停止） | `true` |
+| jtc  | 接着监听的关键词列表，当 `sfjt` 为 `true` 时生效 | `[{"监听词1": "收到后的回复"},{"监听词2": "收到后的回复"}]` |
+
+### zdhf.json文件如何配置（可视化配置文件）
+先打开AstrBot，然后在`插件 - AstrBot - QQ轻量 - 打开插件UI界面 - 规则编辑器`
+| 名称 | 介绍 | 示例 |
+|------|------|------|
+|关键词|关键词（触发词）|`你好`|
+|回复内容|的回复内容|`你好呀！`|
+|接着监听|勾选则接着监听，不勾选则不接着监听|`不勾选`|
+|添加选项|添加一个新的接着监听的规则（需接着监听勾选才有效）|监听`选项1`返回`已选择选项1`|
+|删除该规则|删除本条规则||
+|删除该项|删除接着监听中的本项||
+|添加规则|添加一个新的规则（监听和回复）||
+|保存全部|保存所有规则||
+|刷新|刷新列表重新渲染规则列表||
+
+#### zdhf支持的变量：`{{当前时间}}`
+
+### zlhf.json文件如何配置（直接配置文件）
+| 名称 | 介绍 | 示例 |
+|------|------|------|
+| gjc  | 关键词（触发词）和对应的回复内容 | `{"检测的内容": "收到后的回复"}` |
+|  tp  | 发送的图片 | `你的图片路径` |
+|  sp  | 发送的视频 | `你的图片路径`` |
+|  dt  | 为`true`时，当图片和视频均不为空时显示图片，视频显示为链接 | `false` |
+
+### zlhf.json文件如何配置（可视化配置文件）
+| 名称 | 介绍 | 示例 |
+|------|------|------|
+|关键词|关键词（触发词）|`#菜单`|
+|回复内容|的回复内容|`当前的指令有#菜单`|
+|发送视频|回复的视频|`https://xxx`|
+|发送图片|回复的视频|`https://xxx`|
+|图片混合模式|图片发送图片和视频发送链接|`不勾选`|
+|删除该规则|删除本条规则||
+|添加规则|添加一个新的规则（监听和回复）||
+|保存全部|保存所有规则||
+|刷新|刷新列表重新渲染规则列表||
+
+html图片渲染功能需要自己配置一下(需安装Docker同时在配置中配置接口)，目前只在zlhf（指令回复内）有效，只需回复词前包含<!DOCTYPE html>即可
+
+
+#### 若视频、图片存放在本服务器上建议放在`/root/AstrBot/data/plugin_data/pages/video/`和`/root/AstrBot/data/plugin_data/pages/images/`路径下
+
+### 以上所以配置若修改后无效重载试试
+## ⚙️ 配置
+
+不推荐直接编辑原文件，所以只介绍可视编辑
+
+先打开AstrBot，配置在`插件 - AstrBot - 插件配置`下
+| 名称 | 介绍 | 示例 |
+|------|------|------|
+|QQ群范围|只会回复此范围内群聊的消息，换行分割|qq群号|
+|意见|用户私信机器人反馈的意见发到的群|qq群号|
+|进群验证|会发送进群验证的群，换行分割|qq群号|
+|验证时间（秒）|进群验证多久没回复就会踢出某个人|60|
+|最多验证次数|回复验证码超过几次错误就踢出|3|
+
+## 📚 相关命令
+
+### 私信命令
+| 名称 | 使用方法 | 示例 |
+|------|------|------|
+|意见反馈|私信机器人发消息`意见反馈`，然后在输入意见||
+
+## 🐛 反馈与支持
+
+- 作者：[HAGo]
+- 项目地址：[仓库][dz]
+- 如有问题，欢迎在 [QQ群][qq] 中提出。
