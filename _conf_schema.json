@@ -1,0 +1,32 @@
+{
+    "qq_q_fw": {
+        "type": "text",
+        "description": "QQ群范围",
+        "hint": "只会回复此范围内群聊的消息，换行分割",
+        "default": ""
+    },
+    "qq_q_yj": {
+        "type": "string",
+        "description": "意见",
+        "hint": "收到的意见发到的群",
+        "default": ""
+    },
+    "qq_q_yz": {
+        "type": "text",
+        "description": "进群验证",
+        "hint": "发送进群验证的群",
+        "default": ""
+    },
+    "qq_q_yzsj": {
+        "type": "int",
+        "description": "验证时间（秒）",
+        "hint": "每次验证最长不超过xx秒",
+        "default": 60
+    },
+    "qq_q_yzcs": {
+        "type": "int",
+        "description": "最多验证次数",
+        "hint": "最多验证次数",
+        "default": 3
+    }
+}
