@@ -1,0 +1,345 @@
+/*
+container
+card
+header
+toolbar
+btn
+btn-primary
+btn-success
+bth-sxnr
+rules-container
+rule-card
+rule-header
+keyword-input
+→ 用于编辑规则关键词的输入框。
+reply-input
+→ 用于编辑规则回复内容的输入框。
+rule-switch
+→ 包裹“接着监听”复选框的容器（实际绑定的是其中的 input 元素）。
+jtc-section
+jtc-title
+jtc-list
+jtc-item
+→ 每个“接着监听”子项所在的容器（绑定其中的 input 输入框）。
+delete-rule
+→ 用于删除单条规则的按钮。
+toast-layer
+toast
+success
+error
+empty-state
+btn-add-jtc
+→ 用于为某条规则添加“接着监听（jtc）”子选项的按钮。
+btn-delete-jtc
+→ 用于删除某个“接着监听”子项的按钮
+*/
+
+
+
+/* =========================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #f0f2f5;
+    transition: background 0.2s;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #F0F4F8;
+    margin: 20px;
+    margin-top: 80px;
+}
+.card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.header {
+    padding: 20px 30px;
+    color: white;
+    background: linear-gradient(135deg, #0EA5E9, #14B8A6);
+}
+.header h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+.header p {
+    opacity: 0.9;
+    font-size: 14px;
+}
+.toolbar {
+    padding: 20px 30px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    border-bottom: 1px solid #E5E7EB;
+}
+.btn {
+    border-radius: 6px;
+    padding: 7px 16px 5px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    line-height: 1.5;
+}
+.btn-primary {
+    background-color: #0EA5E9;
+    color: white;
+    border-color: #0EA5E9;
+}
+.btn-primary:hover {
+    background-color: #0284C7;
+}
+.btn-success {
+    background-color: white;
+    color: #0EA5E9;
+    border-color: #0EA5E9;
+}
+.btn-success:hover {
+    background-color: #F0F9FF;
+}
+.bth-sxnr{
+    background-color: #F3F4F6;
+    color: #6B7280;
+    border-color: #E5E7EB;
+}
+.bth-sxnr:hover{
+    background: #E5E7EB;
+}
+.rules-container {
+    padding: 20px 30px;
+    overflow: auto;
+}
+.rule-card {
+    background: #FFFFFF;
+    border-radius: 12px; 
+    border: none;
+    border: 1px solid #F8FAFC;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+.rule-card:hover {
+    border-color: transparent;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+    transform: translateY(-2px);
+}
+.rule-header {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+.hfkts{
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+.hfkts input {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background-color: #FFFFFF;
+    font-size: 14px;
+    color: #1F2937;
+    transition: all 0.2s ease;
+    width: 100%;
+    outline: none;
+    box-sizing: border-box;
+}
+.hfkts input:hover {
+    border-color: #000;
+}
+
+.hfkts input:focus {
+    border-color: #0EA5E9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.hfkts input::placeholder {
+    color: #9CA3AF;
+}
+.hfkts textarea {
+    resize: vertical;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background-color: #FFFFFF;
+    font-size: 14px;
+    color: #1F2937;
+    transition: all 0.2s ease;
+    width: 100%;
+    outline: none;
+    box-sizing: border-box;
+}
+.hfkts textarea:hover {
+    border-color: #000;
+}
+
+.hfkts textarea:focus {
+    border-color: #0EA5E9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.hfkts textarea::placeholder {
+    color: #9CA3AF;
+}
+
+.hf-tsc{
+    margin-left: 5px;
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4B5563;
+    margin-bottom: 6px;
+}
+.keyword-input {
+    flex: 1;
+}
+.reply-input {
+    flex: 2;
+}
+.rule-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+.jtc-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed #d1d5db;
+}
+.jtc-title {
+    font-weight: 600;
+    margin-bottom: 0px;
+    color: #4b5563;
+    font-size: 14px;
+}
+.jtc-list {
+    list-style: none;
+    margin-bottom: 12px;
+}
+.jtc-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: flex-end;
+}
+.jtc-item input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+}
+.btn-delete-jtc{
+    transition: all 0.2s ease;
+    color:#FCA5A5;
+}
+.btn-delete-jtc:hover{
+    color: #EF4444;
+}
+.btn-add-jtc{
+    border-style: dashed
+}
+.delete-rule {
+    position: relative;
+    font-size: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 6px 13px;
+    border-radius: 10px;
+    transition: 0.2s;
+    background: #fff;
+    border: 1px solid #9CA3AF;
+    color: #334155;
+    box-sizing: box-sizing;
+    margin-top: 25px;
+}
+.delete-rule:hover {
+    border: 1px solid #EF4444;
+    background: #FCA5A5;
+}
+.toast-layer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000;
+}
+.toast {
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    margin-top: 8px;
+    animation: fadeIn 0.2s ease;
+}
+.toast.success {
+    background: #48bb78;
+}
+.toast.error {
+    background: #e53e3e;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* =========================================================== */
+
+.nbjkp{
+    padding: 20px;
+}
+
+.nbjkp2{
+    padding: 10px;
+}
+.an-db{
+    border: none;
+    background: transparent;
+    color: #64748B;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+.an-db:hover{
+    color: #0EA5E9;
+    background: rgba(14, 165, 233, 0.08);
+}
+.an-db.active {
+    background: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    color: #0EA5E9;
+}
+.dhl{
+    position: fixed;
+    top: -10px;
+    margin: 0;
+    text-align: center;
+    z-index: 10;
+    background: #F1F5F9;
+    border-radius: 12px;
+    padding: 4px;
+}
