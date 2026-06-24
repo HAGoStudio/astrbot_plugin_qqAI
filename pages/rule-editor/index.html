@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQ消息处理功能插件 - 规则编辑器</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="/api/plugin/page/bridge-sdk.js"></script>
+</head>
+<body>
+<div class="card nbjkp2 dhl" style="margin:20px; display:flex; gap:10px; background: #F8FAFC;">
+    <button class="btn an-db active" id="xy1">关键词回复</button>
+    <button class="btn an-db" id="xy2">指令回复</button>
+    <button class="btn an-db" id="xy3">自动生成的回复</button>
+</div>
+<div class="container" id="lb1" style="display:block;">
+    <div class="card">
+        <div class="header">
+            <h1>关键词回复</h1>
+            <p>编辑 zdhf.json 中的关键词回复规则，支持“接着监听”功能（需要@机器人才有回复）</p>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-primary" id="addRuleBtn">添加规则</button>
+            <button class="btn btn-success" id="saveBtn">保存全部</button>
+            <button class="btn bth-sxnr" id="refreshBtn">刷新</button>
+        </div>
+        <div class="rules-container" id="rulesContainer">
+            <div class="empty-state">加载中...</div>
+        </div>
+    </div>
+</div>
+<div class="container" id="lb2" style="display:none">
+    <div class="card">
+        <div class="header">
+            <h1>指令回复</h1>
+            <p>编辑 zlhf.json 中的关键词回复规则，只要有人在聊天框输入这个文字就有回复（不必需要@）</p>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-primary" id="zlhfBtn">添加规则</button>
+            <button class="btn btn-success" id="zlhfsaveBtn">保存全部</button>
+            <button class="btn bth-sxnr" id="zlhfrefreshBtn">刷新</button>
+        </div>
+        <div class="rules-container" id="zlhfContainer">
+            <div class="empty-state">加载中...</div>
+        </div>
+    </div>
+</div>
+<div class="container" id="lb3" style="display:none">
+    <div class="card">
+        <div class="header">
+            <h1>自动生成的回复</h1>
+            <p>编辑 zdsc.json 中的关键词回复规则，系统自动生成的回复，自行修正更改</p>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-primary" id="zdscBtn">添加规则</button>
+            <button class="btn btn-success" id="zdscsaveBtn">保存全部</button>
+            <button class="btn bth-sxnr" id="zdscrefreshBtn">刷新</button>
+        </div>
+        <div class="rules-container" id="zdscContainer">
+            <div class="empty-state">加载中...</div>
+        </div>
+    </div>
+</div>
+<div class="toast-layer" id="toastLayer"></div>
+<script type="module" src="./script.js"></script>
+<script type="module" src="./hdct.js"></script>
+<script type="module" src="./zlhf.js"></script>
+<script type="module" src="./zdsc.js"></script>
+</body>
+</html>
