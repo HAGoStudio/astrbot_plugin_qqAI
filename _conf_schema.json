@@ -1,32 +1,44 @@
 {
     "qq_q_fw": {
         "type": "text",
-        "description": "QQ群范围",
-        "hint": "只会回复此范围内群聊的消息，换行分割",
+        "description": "QQ群白名单",
+        "hint": "只会回复此范围内群聊的消息，换行分割可填写多个",
         "default": ""
     },
     "qq_q_yj": {
-        "type": "string",
-        "description": "意见",
-        "hint": "收到的意见发到的群",
+        "type": "text",
+        "description": "意见反馈接收群",
+        "hint": "用户私信反馈意见发送到的群",
         "default": ""
     },
     "qq_q_yz": {
         "type": "text",
-        "description": "进群验证",
-        "hint": "发送进群验证的群",
+        "description": "进群验证开启群",
+        "hint": "发送进群验证的群，换行分割可填写多个",
         "default": ""
     },
     "qq_q_yzsj": {
         "type": "int",
-        "description": "验证时间（秒）",
-        "hint": "每次验证最长不超过xx秒",
+        "description": "验证超时时间（秒）",
+        "hint": "超时未验证自动踢出",
         "default": 60
     },
     "qq_q_yzcs": {
         "type": "int",
-        "description": "最多验证次数",
-        "hint": "最多验证次数",
+        "description": "最大验证次数",
+        "hint": "错误次数上限，超过自动踢出",
         "default": 3
+    },
+    "qq_q_html": {
+        "type": "text",
+        "description": "HTML渲染接口",
+        "hint": "HTML转图片的服务地址",
+        "default": "http://localhost:8999/text2img/generate"
+    },
+    "qq_q_xx": {
+        "type": "bool",
+        "description": "学习功能开关",
+        "hint": "开启后，机器人会根据用户输入自动学习新的关键词回复",
+        "default": true
     }
 }
