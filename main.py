@@ -195,10 +195,23 @@ class MyPlugin(Star):
                     if isinstance(item, dict):
                         for hh_gjc, hh_hf in item.items():
                             if hh_gjc == xxwb.strip():
-                                # 匹配成功，执行回复，并推进轮次
-                                next_lc = str(int(hh_lc) + 1)
-                                # 更新会话
-                                jtc_qc = hh_dyd.get(next_lc, [])
+                                now = datetime.now()
+                                dqsj = now.strftime("%Y-%m-%d %H:%M:%S")
+                                hh_hf = hh_hf.replace("{{当前时间}}", dqsj)
+                                sftg = re.search(r":::(\d{3})$", hh_hf)
+                                if sftg:
+                                    # 跳转轮次
+                                    next_lc = str(int(sftg.group(1)))
+                                    # 更新会话
+                                    jtc_qc = hh_dyd.get(next_lc, [])
+                                elif re.search(r":::end$", hh_hf):
+                                    jtc_qc = []
+                                else:
+                                    # 匹配成功，执行回复，并推进轮次
+                                    next_lc = str(int(hh_lc) + 1)
+                                    # 更新会话
+                                    jtc_qc = hh_dyd.get(next_lc, [])
+                                hh_hf = re.sub(r":::(end|\d{3})$", "", hh_hf)
                                 if jtc_qc == []:
                                     async with self.ql_hhs:
                                         task = self.ql_sfdjs.pop(user_id, None)
@@ -216,12 +229,34 @@ class MyPlugin(Star):
                                         )
                                         self.ql_sfdjs[user_id] = sxybhh
                                 # 回复
-                                now = datetime.now()
-                                dqsj = now.strftime("%Y-%m-%d %H:%M:%S")
-                                hh_hf = hh_hf.replace("{{当前时间}}", dqsj)
-                                yield event.chain_result(
-                                    [Comp.At(qq=int(user_id)), Comp.Plain(hh_hf)]
-                                )
+                                # 构建消息链
+                                chain = [Comp.At(qq=int(user_id))]
+                                if hh_hf.strip().startswith("<!DOCTYPE html>"):
+                                    logger.info("检测到 HTML，调用本地渲染服务")
+                                    try:
+                                        img_bytes = await self.html_xr(hh_hf)
+                                        # 将字节数据写入临时文件
+                                        with tempfile.NamedTemporaryFile(
+                                            suffix=".png", delete=False
+                                        ) as tmp:
+                                            tmp.write(img_bytes)
+                                            tmp_path = tmp.name
+                                        # 发送临时文件路径
+                                        chain.append(Comp.Image(file=tmp_path))
+                                        asyncio.create_task(self.html_sc(tmp_path))
+                                        logger.info("图片生成并发送成功")
+                                    except Exception as e:
+                                        logger.error(f"HTML渲染失败: {e}")
+                                        clean = self.html_jjwb(hh_hf)  # 去掉标签
+                                        chain.append(
+                                            Comp.Plain(
+                                                clean[:200] if clean else "图片生成失败"
+                                            )
+                                        )
+                                    yield event.chain_result(chain)
+                                    return
+                                chain.append(Comp.Plain(hh_hf))
+                                yield event.chain_result(chain)
                                 return
                 async with self.ql_hhs:
                     task = self.ql_sfdjs.pop(user_id, None)
@@ -537,6 +572,21 @@ class MyPlugin(Star):
         except Exception as e:
             logger.info(f"错误{e}，用户：{user_id}")
 
+    def html_jjwb(self, html: str) -> str:
+        """从HTML中提取纯文本（降级使用）"""
+        # 去掉 style 和 script 标签及其内容
+        html = re.sub(
+            r"<style[^>]*>.*?</style>", "", html, flags=re.DOTALL | re.IGNORECASE
+        )
+        html = re.sub(
+            r"<script[^>]*>.*?</script>", "", html, flags=re.DOTALL | re.IGNORECASE
+        )
+        # 去掉所有 HTML 标签
+        text = re.sub(r"<[^>]+>", "", html)
+        # 去掉多余空白行
+        text = "\n".join([line.strip() for line in text.splitlines() if line.strip()])
+        return text[:200] if text else "图片生成失败"
+
     # ---------------------------------
 
     # 文件相关读取
@@ -627,7 +677,31 @@ class MyPlugin(Star):
                 dqsj = now.strftime("%Y-%m-%d %H:%M:%S")
                 # 普通文本替换占位符
                 hfdf = hfdf.replace("{{当前时间}}", dqsj)
-                return [Comp.At(qq=int(user_id)), Comp.Plain(hfdf)]
+                # 构建消息链
+                chain = [Comp.At(qq=int(user_id))]
+                if hfdf.strip().startswith("<!DOCTYPE html>"):
+                    logger.info("检测到 HTML，调用本地渲染服务")
+                    try:
+                        img_bytes = await self.html_xr(hfdf)
+                        # 将字节数据写入临时文件
+                        with tempfile.NamedTemporaryFile(
+                            suffix=".png", delete=False
+                        ) as tmp:
+                            tmp.write(img_bytes)
+                            tmp_path = tmp.name
+                        # 发送临时文件路径
+                        chain.append(Comp.Image(file=tmp_path))
+                        asyncio.create_task(self.html_sc(tmp_path))
+                        logger.info("图片生成并发送成功")
+                    except Exception as e:
+                        logger.error(f"HTML渲染失败: {e}")
+                        clean = self.html_jjwb(hfdf)  # 去掉标签
+                        chain.append(
+                            Comp.Plain(clean[:200] if clean else "图片生成失败")
+                        )
+                    return chain
+                chain.append(Comp.Plain(hfdf))
+                return chain
         if hflb == hflb_pt and hflb_ai != []:
             hflb = hflb_ai
             for item in hflb:
@@ -652,7 +726,31 @@ class MyPlugin(Star):
                     dqsj = now.strftime("%Y-%m-%d %H:%M:%S")
                     # 普通文本替换占位符
                     hfdf = hfdf.replace("{{当前时间}}", dqsj)
-                    return [Comp.At(qq=int(user_id)), Comp.Plain(hfdf)]
+                    # 构建消息链
+                    chain = [Comp.At(qq=int(user_id))]
+                    if hfdf.strip().startswith("<!DOCTYPE html>"):
+                        logger.info("检测到 HTML，调用本地渲染服务")
+                        try:
+                            img_bytes = await self.html_xr(hfdf)
+                            # 将字节数据写入临时文件
+                            with tempfile.NamedTemporaryFile(
+                                suffix=".png", delete=False
+                            ) as tmp:
+                                tmp.write(img_bytes)
+                                tmp_path = tmp.name
+                            # 发送临时文件路径
+                            chain.append(Comp.Image(file=tmp_path))
+                            asyncio.create_task(self.html_sc(tmp_path))
+                            logger.info("图片生成并发送成功")
+                        except Exception as e:
+                            logger.error(f"HTML渲染失败: {e}")
+                            clean = self.html_jjwb(hfdf)  # 去掉标签
+                            chain.append(
+                                Comp.Plain(clean[:200] if clean else "图片生成失败")
+                            )
+                        return chain
+                    chain.append(Comp.Plain(hfdf))
+                    return chain
         await self.xx_at_xx(hfxx)
         return [
             Comp.At(qq=int(user_id)),
@@ -699,7 +797,7 @@ class MyPlugin(Star):
                         logger.info("图片生成并发送成功")
                     except Exception as e:
                         logger.error(f"HTML渲染失败: {e}")
-                        clean = re.sub(r"<[^>]+>", "", reply_text)  # 去掉标签
+                        clean = self.html_jjwb(reply_text)  # 去掉标签
                         chain.append(
                             Comp.Plain(clean[:200] if clean else "图片生成失败")
                         )
@@ -749,7 +847,7 @@ class MyPlugin(Star):
                     new_entry = {
                         "gjc": {xxwb: reply},
                         "sfjt": item.get("sfjt", "false"),
-                        "jtc": item.get("jtc", {})
+                        "jtc": item.get("jtc", {}),
                     }
                     # 去重
                     if not any(e.get("gjc", {}).get(xxwb) == reply for e in zdsc):
