@@ -80,7 +80,7 @@ function zdsc_renderRules() {
                                 </div>
                                 <div class="hfkts">
                                     <text class="hf-tsc">回复内容</text>
-                                    <input type="text" placeholder="回复内容" value="${zdsc_escapeHtml(subVal)}" data-idx="${idx}" data-jtckey="${jtcKey}" data-subidx="${subIdx}" data-jtcfield="val">
+                                    <textarea type="text" placeholder="回复内容" rows="3" data-idx="${idx}" data-jtckey="${jtcKey}" data-subidx="${subIdx}" data-jtcfield="val">${zdsc_escapeHtml(subVal)}</textarea>
                                 </div>
                                 <button class="btn-delete-jtc" data-idx="${idx}" data-jtckey="${jtcKey}" data-subidx="${subIdx}" style="background:none; border:none; cursor:pointer; padding-bottom:6px; color:#ef4444;">删除该项</button>
                             </li>
