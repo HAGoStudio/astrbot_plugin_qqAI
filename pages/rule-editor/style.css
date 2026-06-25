@@ -204,12 +204,6 @@ body {
     color: #4B5563;
     margin-bottom: 6px;
 }
-.keyword-input {
-    flex: 1;
-}
-.reply-input {
-    flex: 2;
-}
 .rule-switch {
     display: flex;
     align-items: center;
@@ -235,7 +229,8 @@ body {
     display: flex;
     gap: 10px;
     margin-bottom: 8px;
-    align-items: flex-end;
+    flex-wrap: wrap;
+    align-items: flex-start;
 }
 .jtc-item input {
     flex: 1;
@@ -343,3 +338,11 @@ body {
     border-radius: 12px;
     padding: 4px;
 }
+
+
+
+
+
+
+
+
