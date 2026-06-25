@@ -2,7 +2,7 @@
 [qq]:https://qm.qq.com/q/fELAuy7Ikg
 [dz]:https://github.com/HAGoStudio/astrbot_plugin_qqAI
 
-# QQ AI 功能插件 (qqAI)
+# QQ消息处理功能插件
 
 ## ✨ 功能
  - 自动回复
