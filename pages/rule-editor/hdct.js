@@ -1,8 +1,8 @@
-// 1. 声明私有存储变量
+// 声明变量
 let _hdcts = 0;
 let onHdctsChange = null;
 
-// 2. 使用 Object.defineProperty 监听 window.hdcts
+// 使用 Object.defineProperty 监听 window.hdcts
 Object.defineProperty(window, 'hdcts', {
     get() {
         return _hdcts;
@@ -21,66 +21,122 @@ Object.defineProperty(window, 'hdcts', {
     configurable: true
 });
 
-// 3. 设置监听回调的函数
+// 设置监听回调的函数
 function setHdctsChangeHandler(callback) {
     onHdctsChange = callback;
 }
 
-// 4. DOM 加载完成后，注册监听并初始化
+// DOM 加载完成后，注册监听并初始化
+// DOM 加载完成后，注册监听并初始化
 document.addEventListener('DOMContentLoaded', function() {
-    // 获取两个按钮元素
+    // 获取按钮和卡片元素
     const btn1 = document.getElementById('xy1');
     const btn2 = document.getElementById('xy2');
     const btn3 = document.getElementById('xy3');
     const lb1 = document.getElementById('lb1');
     const lb2 = document.getElementById('lb2');
+    const lb3 = document.getElementById('lb3');
 
-    if (!btn1 || !btn2 || !btn3) {
+    if (!btn1 || !btn2 || !btn3 || !lb1 || !lb2 || !lb3) {
         return;
     }
-    btn1.addEventListener('click', () => {
-        // 点击时
-        hdcts = 0;
-    });
-    btn2.addEventListener('click', () => {
-        // 点击时
-        hdcts = 1;
-    });
-    btn3.addEventListener('click', () => {
-        // 点击时
-        hdcts = 2;
-    });
+
+    btn1.addEventListener('click', () => { hdcts = 0; });
+    btn2.addEventListener('click', () => { hdcts = 1; });
+    btn3.addEventListener('click', () => { hdcts = 2; });
+
     // 注册回调：当 hdcts 变化时，修改 class
     setHdctsChangeHandler((newVal, oldVal) => {
-        if (newVal === 0) {
-            // hdcts = 0 时：xy1 激活，xy2 取消激活
-            btn1.className = 'btn an-db active';
-            btn2.className = 'btn an-db';
-            btn3.className = 'btn an-db';
-            lb1.style.display = 'block';
-            lb2.style.display = 'none';
-            lb3.style.display = 'none';
-        } else if(newVal === 1){
-            // hdcts = 其他值时：xy2 激活，xy1 取消激活
-            btn2.className = 'btn an-db active';
-            btn1.className = 'btn an-db';
-            btn3.className = 'btn an-db';
-            lb2.style.display = 'block';
-            lb1.style.display = 'none';
-            lb3.style.display = 'none';
-        } else{
-            btn3.className = 'btn an-db active';
-            btn1.className = 'btn an-db';
-            btn2.className = 'btn an-db';
-            lb3.style.display = 'block';
-            lb1.style.display = 'none';
-            lb2.style.display = 'none';
+        const cards = [lb1, lb2, lb3];
+        const oldCard = cards[oldVal];
+        let activeCard;
+        if (newVal === 0) activeCard = lb1;
+        else if (newVal === 1) activeCard = lb2;
+        else activeCard = lb3;
+
+        // 1. 移除所有卡片的动画类
+        cards.forEach(card => card.classList.remove('active', 'hrzc', 'hrzccq', 'hrzcyc'));
+
+        // 2. 清除所有卡片的行内 transform，避免残留覆盖 CSS 类
+        cards.forEach(card => card.style.transform = '');
+        
+        // 3. 重置无关卡片（既不是旧卡也不是新卡）到右侧隐藏位置
+        cards.forEach(card => {
+            if (card !== oldCard && card !== activeCard) {
+                card.style.transition = 'none';
+                card.style.transform = 'translateX(200%)';
+                void card.offsetWidth;
+                card.style.transition = '';
+            }
+        });
+        
+        // 4. 旧卡片离场动画（初始化时 newVal === oldVal 跳过）
+        if (oldCard && newVal !== oldVal) {
+            if (newVal > oldVal) {
+                oldCard.classList.add('hrzccq');
+            } else {
+                oldCard.classList.add('hrzcyc');
+            }
         }
-        console.log(`hdcts 变更为 ${newVal}，已切换按钮状态`);
+
+        // 5. 新卡片入场起始方向
+        if (newVal !== oldVal) {
+            if (newVal < oldVal) {
+                activeCard.classList.add('hrzc');   // 从左侧进入
+            }
+            // 否则从右侧进入，默认 200% 即可
+        }
+
+        // 强制应用起始位置
+        void activeCard.offsetWidth;
+
+        // 6. 双重 rAF 确保起始帧渲染后，再触发入场动画
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                activeCard.classList.add('active');
+
+                // 更新按钮激活状态
+                btn1.className = 'btn an-db' + (newVal === 0 ? ' active' : '');
+                btn2.className = 'btn an-db' + (newVal === 1 ? ' active' : '');
+                btn3.className = 'btn an-db' + (newVal === 2 ? ' active' : '');
+            });
+        });
+
+        console.log(`hdcts 变更为 ${newVal}，方向：${newVal > oldVal ? '右进' : newVal < oldVal ? '左进' : '初始'}`);
     });
 
-    // 5. 初始化：把当前的 _hdcts 值应用到界面上
-    // 直接触发一次回调
+    // ------------------- 昼夜模式切换 -------------------
+    const themeBtn = document.getElementById('ayqh');
+    let currentTheme = 'light'
+    if (themeBtn) {
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = '暗夜模式';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeBtn.textContent = '白昼模式';
+            }
+            currentTheme = theme;
+        }
+
+        themeBtn.addEventListener('click', function() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+        });
+
+        // 初始化
+        if (currentTheme) {
+            setTheme(currentTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+    }
+
+    // 初始化：把当前的 _hdcts 值应用到界面上
     if (typeof onHdctsChange === 'function') {
         onHdctsChange(_hdcts, _hdcts);
     }
