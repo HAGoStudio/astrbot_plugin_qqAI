@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,63 +8,299 @@
     <script src="/api/plugin/page/bridge-sdk.js"></script>
 </head>
 <body>
-<div class="card nbjkp2 dhl" style="margin:20px; display:flex; gap:10px; background: #F8FAFC;">
-    <button class="btn an-db active" id="xy1">关键词回复</button>
-    <button class="btn an-db" id="xy2">指令回复</button>
-    <button class="btn an-db" id="xy3">自动生成的回复</button>
+<div id="xxtc"></div>
+<div class="dhl">
+    <button class="an-db active" id="xy1">关键词回复</button>
+    <button class="an-db" id="xy2">指令回复</button>
+    <button class="an-db" id="xy3">自动生成的回复</button>
 </div>
-<div class="container" id="lb1" style="display:block;">
-    <div class="card">
-        <div class="header">
-            <h1>关键词回复</h1>
-            <p>编辑 zdhf.json 中的关键词回复规则，支持“接着监听”功能（需要@机器人才有回复）</p>
+<div class="bjkp active" id="lb1">
+    <div class="zc">
+        <a class="bt">关键词回复</a>
+        <div class="jdjs">编辑 zdhf.json 中的关键词回复规则，支持“接着监听”功能（需要@机器人才有回复）</div>
+        <button class="an" id="zdhf_tjgz">
+            <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            添加规则
+        </button>
+        <button class="bc" id="zdhf_bcgz">
+            <svg class="bc-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            保存全部
+        </button>
+        <button class="sx" id="zdhf_sxgz">
+            <svg class="sx-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            刷新规则
+        </button>
+        <div style="position: relative; width: 100%; display: flex; text-align: center;">
+            <span class="ssk-tb">
+                <svg class="ssk-tb-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </span>
+            <input type="text" class="ssk" placeholder="搜索规则...">
         </div>
-        <div class="toolbar">
-            <button class="btn btn-primary" id="addRuleBtn">添加规则</button>
-            <button class="btn btn-success" id="saveBtn">保存全部</button>
-            <button class="btn bth-sxnr" id="refreshBtn">刷新</button>
+        <div class="fgx"></div>
+        <div class="lb" id="zdhf_lb">
         </div>
-        <div class="rules-container" id="rulesContainer">
-            <div class="empty-state">加载中...</div>
+    </div>
+    <div class="yc">
+        <div class="yc-tb">
+            <a class="yc-bt">规则编辑</a>
+            <button class="sc" id="zdhf_scgz">
+                <svg class="sc-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+                删除规则
+            </button>
+        </div>
+        <div class="yc-bjq">
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    基础信息
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">匹配关键词</span>
+                    <input id="zdhf_ppgjc" class="yc-srk" placeholder="请输入关键词...">
+                </div>
+                <div class="bjx-srk">
+                    <label class="js">启用</label>
+                    <label class="kgdb">
+                        <input id="zdhf_sfqy" class="kg" type="checkbox" checked>
+                        <span class="kg-hk"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    回复内容
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">回复内容</span>
+                    <textarea id="zdhf_hfnr" row="3" style="resize: vertical;" class="yc-srk" placeholder="请输入文字或HTML..."></textarea>
+                </div>
+            </div>
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    多轮对话
+                </div>
+                <div class="bjx-srk">
+                    <label class="js">开启多轮对话</label>
+                    <label class="kgdb">
+                        <input id="zdhf_dldhan" class="kg" type="checkbox" checked>
+                        <span class="kg-hk"></span>
+                    </label>
+                </div>
+                <div class="yc-kp-dldh" id="zdhf_dllb">
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div class="container" id="lb2" style="display:none">
-    <div class="card">
-        <div class="header">
-            <h1>指令回复</h1>
-            <p>编辑 zlhf.json 中的关键词回复规则，只要有人在聊天框输入这个文字就有回复（不必需要@）</p>
+<div class="bjkp" id="lb2">
+    <div class="zc">
+        <a class="bt">指令回复</a>
+        <div class="jdjs">编辑 zlhf.json 中的关键词回复规则，只要有人在聊天框输入这个文字就有回复（不必需要@）</div>
+        <button class="an" id="zlhf_tjgz">
+            <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            添加规则
+        </button>
+        <button class="bc" id="zlhf_bcgz">
+            <svg class="bc-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            保存全部
+        </button>
+        <button class="sx" id="zlhf_sxgz">
+            <svg class="sx-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            刷新规则
+        </button>
+        <div style="position: relative; width: 100%; display: flex; text-align: center;">
+            <span class="ssk-tb">
+                <svg class="ssk-tb-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </span>
+            <input type="text" class="ssk" placeholder="搜索规则...">
         </div>
-        <div class="toolbar">
-            <button class="btn btn-primary" id="zlhfBtn">添加规则</button>
-            <button class="btn btn-success" id="zlhfsaveBtn">保存全部</button>
-            <button class="btn bth-sxnr" id="zlhfrefreshBtn">刷新</button>
+        <div class="fgx"></div>
+        <div class="lb" id="zlhf_lb">
         </div>
-        <div class="rules-container" id="zlhfContainer">
-            <div class="empty-state">加载中...</div>
+    </div>
+    <div class="yc">
+        <div class="yc-tb">
+            <a class="yc-bt">规则编辑</a>
+            <button class="sc" id="zlhf_scgz">
+                <svg class="sc-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+                删除规则
+            </button>
+        </div>
+        <div class="yc-bjq">
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    基础信息
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">匹配关键词</span>
+                    <input id="zlhf_ppgjc" class="yc-srk" placeholder="请输入关键词...">
+                </div>
+                <div class="bjx-srk">
+                    <label class="js">启用</label>
+                    <label class="kgdb">
+                        <input id="zlhf_sfqy" class="kg" type="checkbox" checked>
+                        <span class="kg-hk"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    回复内容
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">回复内容</span>
+                    <textarea id="zlhf_hfnr" row="3" style="resize: vertical;" class="yc-srk" placeholder="请输入文字或HTML..."></textarea>
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">回复图片</span>
+                    <input id="zlhf_hftp" class="yc-srk" placeholder="请输入图片链接...">
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">回复视频</span>
+                    <input  id="zlhf_hfsp" class="yc-srk" placeholder="请输入视频链接...">
+                </div>
+                <div class="bjx-srk">
+                    <label class="js">图片视频混合模式</label>
+                    <div class="jdjs">开启后只发送图片，视频发送为文字</div>
+                    <label class="kgdb">
+                        <input id="zlhf_tpsphh" class="kg" type="checkbox" checked>
+                        <span class="kg-hk"></span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div class="container" id="lb3" style="display:none">
-    <div class="card">
-        <div class="header">
-            <h1>自动生成的回复</h1>
-            <p>编辑 zdsc.json 中的关键词回复规则，系统自动生成的回复，自行修正更改</p>
+<div class="bjkp" id="lb3">
+    <div class="zc">
+        <a class="bt">自动生成的回复</a>
+        <div class="jdjs">编辑 zdsc.json 中的关键词回复规则，系统自动生成的回复，自行修正更改</div>
+        <button class="an" id="zdsc_tjgz">
+    <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        添加规则
+    </button>
+    <button class="bc" id="zdsc_bcgz">
+        <svg class="bc-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        保存全部
+    </button>
+    <button class="sx" id="zdsc_sxgz">
+        <svg class="sx-svg" style="width: 14px; height: 14px;" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        刷新规则
+    </button>
+    <div style="position: relative; width: 100%; display: flex; text-align: center;">
+        <span class="ssk-tb">
+            <svg class="ssk-tb-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+        </span>
+        <input type="text" class="ssk" placeholder="搜索规则...">
+    </div>
+    <div class="fgx"></div>
+    <div class="lb" id="zdsc_lb">
+    </div>
+    </div>
+    <div class="yc">
+        <div class="yc-tb">
+            <a class="yc-bt">规则编辑</a>
+            <button class="sc" id="zdsc_scgz">
+                <svg class="sc-svg" style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                </svg>
+                删除规则
+            </button>
         </div>
-        <div class="toolbar">
-            <button class="btn btn-primary" id="zdscBtn">添加规则</button>
-            <button class="btn btn-success" id="zdscsaveBtn">保存全部</button>
-            <button class="btn bth-sxnr" id="zdscrefreshBtn">刷新</button>
-        </div>
-        <div class="rules-container" id="zdscContainer">
-            <div class="empty-state">加载中...</div>
+        <div class="yc-bjq">
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    基础信息
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">匹配关键词</span>
+                    <input id="zdsc_ppgjc" class="yc-srk" placeholder="请输入关键词...">
+                </div>
+                <div class="bjx-srk">
+                    <label class="js">启用</label>
+                    <label class="kgdb">
+                        <input id="zdsc_sfqy" class="kg" type="checkbox" checked>
+                        <span class="kg-hk"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    回复内容
+                </div>
+                <div class="bjx-srk">
+                    <span class="js">回复内容</span>
+                    <textarea id="zdsc_hfnr" row="3" style="resize: vertical;" class="yc-srk" placeholder="请输入文字或HTML..."></textarea>
+                </div>
+            </div>
+            <div class="yc-kp">
+                <div class="ycxf-bjl">
+                    <span class="d"></span>
+                    多轮对话
+                </div>
+                <div class="bjx-srk">
+                    <label class="js">开启多轮对话</label>
+                    <label class="kgdb">
+                        <input id="zdsc_dldhan" class="kg" type="checkbox" checked>
+                        <span class="kg-hk"></span>
+                    </label>
+                </div>
+                <div class="yc-kp-dldh" id="zdsc_dllb">
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div class="toast-layer" id="toastLayer"></div>
-<script type="module" src="./script.js"></script>
+<div class="ysjan">
+    <button class="an-db" id="ayqh">白昼模式</button>
+</div>
+
 <script type="module" src="./hdct.js"></script>
-<script type="module" src="./zlhf.js"></script>
+<script type="module" src="./script.js"></script>
 <script type="module" src="./zdsc.js"></script>
+<script type="module" src="./zlhf.js"></script>
 </body>
 </html>
