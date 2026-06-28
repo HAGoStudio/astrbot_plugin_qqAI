@@ -8,16 +8,16 @@ import time
 from datetime import datetime
 
 import httpx
-from quart import jsonify, request
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
 from astrbot.api.event import AstrMessageEvent, MessageChain, filter
 from astrbot.api.message_components import Plain
 from astrbot.api.star import Context, Star, register
+from astrbot.api.web import error_response, json_response, request
 
 
-@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.0.0")
+@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.2.0")
 class MyPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
@@ -194,7 +194,7 @@ class MyPlugin(Star):
                 for item in jtc:
                     if isinstance(item, dict):
                         for hh_gjc, hh_hf in item.items():
-                            if hh_gjc == xxwb.strip():
+                            if hh_gjc == xxwb.strip() and not xxwb.startswith(">:://"):
                                 now = datetime.now()
                                 dqsj = now.strftime("%Y-%m-%d %H:%M:%S")
                                 hh_hf = hh_hf.replace("{{当前时间}}", dqsj)
@@ -662,7 +662,7 @@ class MyPlugin(Star):
             gjc = item.get("gjc", {})
             sfjt = item.get("sfjt", False)
             jtc = item.get("jtc", {})
-            if isinstance(gjc, dict) and hfxx in gjc:
+            if isinstance(gjc, dict) and hfxx in gjc and not hfxx.startswith(">:://"):
                 hfdf = gjc[hfxx]
                 if sfjt == "true" and jtc != {}:
                     async with self.ql_hhs:
@@ -711,7 +711,11 @@ class MyPlugin(Star):
                 gjc = item.get("gjc", {})
                 sfjt = item.get("sfjt", False)
                 jtc = item.get("jtc", {})
-                if isinstance(gjc, dict) and hfxx in gjc:
+                if (
+                    isinstance(gjc, dict)
+                    and hfxx in gjc
+                    and not hfxx.startswith(">:://")
+                ):
                     hfdf = gjc[hfxx]
                     if sfjt == "true" and jtc != {}:
                         async with self.ql_hhs:
@@ -765,7 +769,7 @@ class MyPlugin(Star):
             if not isinstance(item, dict):
                 continue
             gjc = item.get("gjc", {})
-            if hfxx in gjc:
+            if hfxx in gjc and not hfxx.startswith(">:://"):
                 reply_text = gjc[hfxx]  # 文本回复
                 tp = item.get("tp", "")  # 图片地址
                 sp = item.get("sp", "")  # 视频地址
@@ -843,7 +847,11 @@ class MyPlugin(Star):
         for item in zdhf:
             gjc = item.get("gjc", {})
             for kw, reply in gjc.items():
-                if xxwb.startswith(kw) and len(xxwb) <= len(kw) + 2:
+                if (
+                    xxwb.startswith(kw)
+                    and len(xxwb) <= len(kw) + 2
+                    and not xxwb.startswith(">:://")
+                ):
                     new_entry = {
                         "gjc": {xxwb: reply},
                         "sfjt": item.get("sfjt", "false"),
@@ -891,20 +899,14 @@ class MyPlugin(Star):
         前端调用: bridge.apiGet("hqgz", { file: "rules.json" })
         """
         try:
-            file_name = request.args.get("file", "zdhf.json")
-            data = await self.json_dq(file_name)  # 你的异步读取方法
-            # 兼容空数据：统一转为空数组
+            file_name = request.query.get("file", "zdhf.json", type=str)
+            data = await self.json_dq(file_name)
             if not data or (isinstance(data, dict) and not data):
                 data = []
-            elif isinstance(data, dict) and data:
-                # 如果是字典且有内容，保持原样（但前端可能期望数组，建议转换）
-                pass
-
-            # 用 jsonify 返回 JSON 响应
-            return jsonify({"success": True, "data": data, "message": "获取成功"})
+            return json_response({"success": True, "data": data, "message": "获取成功"})
         except Exception as e:
             logger.error(f"api_get_rules 异常: {e}", exc_info=True)
-            return jsonify({"success": False, "message": f"服务器错误: {str(e)}"}), 500
+            return error_response(f"服务器错误: {str(e)}", status_code=500)
 
     async def api_save_rules(self):
         """
@@ -912,24 +914,18 @@ class MyPlugin(Star):
         前端调用: bridge.apiPost("bcgz", { file: "rules.json", data: [...] })
         """
         try:
-            # POST 请求使用 await request.get_json() 获取 JSON 体
-            body = await request.get_json()
-            if body is None:
-                return jsonify({"success": False, "message": "请求体必须是 JSON"}), 400
-
-            file_name = body.get("file", "zdhf.json")
-            data = body.get("data", [])
-
+            payload = await request.json(default={})
+            if payload is None:
+                return error_response("请求体必须是 JSON", status_code=400)
+            file_name = payload.get("file", "zdhf.json")
+            data = payload.get("data", [])
             if not isinstance(data, list):
-                return jsonify(
-                    {"success": False, "message": "数据格式错误，必须是数组"}
-                ), 400
-
-            success = await self.json_xg(file_name, data)  # 你的异步保存方法
+                return error_response("数据格式错误，必须是数组", status_code=400)
+            success = await self.json_xg(file_name, data)
             if success:
-                return jsonify({"success": True, "message": "保存成功"})
+                return json_response({"success": True, "message": "保存成功"})
             else:
-                return jsonify({"success": False, "message": "保存失败"}), 500
+                return error_response("保存失败", status_code=500)
         except Exception as e:
             logger.error(f"api_save_rules 异常: {e}", exc_info=True)
-            return jsonify({"success": False, "message": f"服务器错误: {str(e)}"}), 500
+            return error_response(f"服务器错误: {str(e)}", status_code=500)
