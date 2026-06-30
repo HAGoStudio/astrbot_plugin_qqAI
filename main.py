@@ -17,7 +17,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api.web import error_response, json_response, request
 
 
-@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.2.0")
+@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.3.0")
 class MyPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
@@ -269,7 +269,8 @@ class MyPlugin(Star):
                 # 机器人被 @ 了
                 if xxwb.strip():
                     hfxl = await self.xx_at_pt(user_id, xxwb.strip())
-                    yield event.chain_result(hfxl)
+                    if hfxl:
+                        yield event.chain_result(hfxl)
                 else:
                     yield event.plain_result("有什么需要我帮助的吗？")
             else:
@@ -756,10 +757,7 @@ class MyPlugin(Star):
                     chain.append(Comp.Plain(hfdf))
                     return chain
         await self.xx_at_xx(hfxx)
-        return [
-            Comp.At(qq=int(user_id)),
-            Comp.Plain("我还在学习呢！这个我还不会回复哦~"),
-        ]
+        return None
 
     async def xx_zl_pt(self, user_id, hfxx, xxid):
         hflb_pt = await self.json_dq("zlhf.json")
@@ -929,3 +927,50 @@ class MyPlugin(Star):
         except Exception as e:
             logger.error(f"api_save_rules 异常: {e}", exc_info=True)
             return error_response(f"服务器错误: {str(e)}", status_code=500)
+
+    @filter.llm_tool(name="query_gostore_rule")
+    async def tool_get_internal_rules(
+        self, event: AstrMessageEvent, export_full: bool, search_keywords: list
+    ):
+        """从内部词库查询对应的规则数据。
+
+        Args:
+            export_full(boolean): 是否返回完整词库。仅当用户明确要求（如“发我一下完整词库”）时设为 true，否则默认 false。
+            search_keywords(array[string]): 用户问题拆解出的核心关键词和近义词列表。**【必须】传入标准的列表格式（例如 ["安装", "linux", "部署"]），绝对禁止仅传入单个字符串。如果需要获取整个词库时也必须传入一个空的列表[]
+        """
+        try:
+            # 1. 读取完整的内部词库
+            all_data = await self.json_dq("zdhf.json")
+            all_gjc = []
+            for item in all_data:
+                gjc = item.get("gjc", {})
+                if gjc:
+                    all_gjc.append(gjc)
+
+            # 2. 场景 A：AI 判断需要返回完整词库
+            if export_full:
+                result_text = f"以下为完整内部词库数据：\n```json\n{json.dumps(all_gjc, ensure_ascii=False, indent=2)}\n```"
+                return result_text
+
+            # 3. 场景 B：AI 判断只需检索部分词库（按近义词/关键词）
+            matched_data = []
+            if search_keywords:  # 如果 AI 拆解出了关键词列表
+                for item in all_gjc:
+                    for keyword, reply in item.items():
+                        for term in search_keywords:
+                            # 只要词库的关键字中包含了 AI 传回的关键词/近义词，就算匹配
+                            if term in keyword:
+                                matched_data.append(item)
+                                break  # 跳出内部循环，防止重复添加同一个 item
+
+            # 4. 封装返回值
+            if matched_data:
+                result_text = f"根据用户问题拆解出的关键词 {json.dumps(search_keywords)}，在词库中检索到以下相关规则：\n```json\n{json.dumps(matched_data, ensure_ascii=False, indent=2)}\n```"
+            else:
+                result_text = f"根据用户问题拆解出的关键词 {json.dumps(search_keywords)}，在词库中未检索到匹配条目。"
+
+            return result_text
+
+        except Exception as e:
+            logger.error(f"工具调用失败: {e}")
+            return "获取内部词库失败，请稍后重试。"
