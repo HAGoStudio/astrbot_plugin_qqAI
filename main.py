@@ -16,8 +16,7 @@ from astrbot.api.message_components import Plain
 from astrbot.api.star import Context, Star, register
 from astrbot.api.web import error_response, json_response, request
 
-
-@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.3.0")
+@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.4.0")
 class MyPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
@@ -55,10 +54,14 @@ class MyPlugin(Star):
 
         # 读取配置项：QQ群白名单
         qql = self.config.get("qq_q_fw", "")
+        # 读取配置项：意见反馈是否开启
+        self.qqyjsfkq = self.config.get("qq_q_yjsfkq", "")
         # 读取配置项：意见反馈接收群号
         self.qqyjfk = self.config.get("qq_q_yj", "")
         # 读取配置项：入群验证群
         qqy = self.config.get("qq_q_yz", "")
+        # 读取配置项：验证通过后的欢迎
+        self.qqhy = self.config.get("qq_q_yzhy", "")
         # 读取配置项html渲染接口
         self.html_jk_xr = self.config.get(
             "qq_q_html", "http://localhost:8999/text2img/generate"
@@ -98,8 +101,6 @@ class MyPlugin(Star):
         # 群聊会话锁
         self.ql_hhs = asyncio.Lock()
 
-        asyncio.create_task(self.pzwj_fzbcz())
-
     async def pzwj_fzbcz(self):
         """检查并创建必需的配置文件"""
         for filename in ["zlhf.json", "zdhf.json", "zdsc.json"]:
@@ -127,6 +128,56 @@ class MyPlugin(Star):
     # 群聊消息处理
     async def qlxx(self, event: AstrMessageEvent):
         """群聊消息处理"""
+        if type(event).__name__ == 'WebChatMessageEvent':
+            hfxx = ""
+            for comp in event.message_obj.message:
+                if isinstance(comp, Comp.Plain):
+                    hfxx += comp.text
+            if hfxx.strip():
+                hflb_pt = await self.json_dq("zdhf.json")
+                hflb_ai = await self.json_dq("zdsc.json")
+                if hflb_pt == []:
+                    if hflb_ai == []:
+                        return
+                    else:
+                        hflb = hflb_ai
+                else:
+                    hflb = hflb_pt
+                logger.info(hflb)
+                for item in hflb:
+                    if not isinstance(item, dict):
+                        continue
+                    gjc = item.get("gjc", {})
+                    if isinstance(gjc, dict) and hfxx in gjc and not hfxx.startswith(">:://"):
+                        hfdf = gjc[hfxx]
+                        # 普通文本替换占位符
+                        now = datetime.now()
+                        dqsj = now.strftime("%Y-%m-%d %H:%M:%S")
+                        hfdf = hfdf.replace("{{当前时间}}", dqsj)
+                        yield event.plain_result(hfdf)
+                        return
+                hflb = hflb_ai
+                for item in hflb:
+                    if not isinstance(item, dict):
+                        continue
+                    gjc = item.get("gjc", {})
+                    if (
+                        isinstance(gjc, dict)
+                        and hfxx in gjc
+                        and not hfxx.startswith(">:://")
+                    ):
+                        hfdf = gjc[hfxx]
+                        # 普通文本替换占位符
+                        now = datetime.now()
+                        dqsj = now.strftime("%Y-%m-%d %H:%M:%S")
+                        hfdf = hfdf.replace("{{当前时间}}", dqsj)
+                        yield event.plain_result(hfdf)
+                    return
+            return
+        
+        
+        
+        
         # 获取群号
         dqql = event.message_obj.group_id
         # 获取机器人自己
@@ -299,6 +350,8 @@ class MyPlugin(Star):
         if not user_id:
             return
         jg = (None, None)
+        if self.qqyjsfkq is False:
+            return
         async with self.sx_hhs:
             lb = self.sx_hh.get(user_id)
             if lb and xxwb.strip() == "意见反馈":
@@ -402,11 +455,13 @@ class MyPlugin(Star):
         """
         统一事件入口
         """
+        if type(event).__name__ == 'WebChatMessageEvent':
+            async for res in self.qlxx(event):
+                yield res
+            return
         if self.bot is None:
             self.bot = event.bot
         raw = event.message_obj.raw_message
-        if raw is None:
-            return
         # 系统通知
         if raw.get("post_type") == "notice":
             # 入群
@@ -476,7 +531,7 @@ class MyPlugin(Star):
 
         # 锁外处理发送消息
         if jg[0] == "success":
-            yield event.plain_result(" 验证通过，欢迎加入群聊！")
+            yield event.plain_result(self.qqhy)
 
         elif jg[0] == "kick":
             try:
@@ -927,50 +982,4 @@ class MyPlugin(Star):
         except Exception as e:
             logger.error(f"api_save_rules 异常: {e}", exc_info=True)
             return error_response(f"服务器错误: {str(e)}", status_code=500)
-
-    @filter.llm_tool(name="query_gostore_rule")
-    async def tool_get_internal_rules(
-        self, event: AstrMessageEvent, export_full: bool, search_keywords: list
-    ):
-        """从内部词库查询对应的规则数据。
-
-        Args:
-            export_full(boolean): 是否返回完整词库。仅当用户明确要求（如“发我一下完整词库”）时设为 true，否则默认 false。
-            search_keywords(array[string]): 用户问题拆解出的核心关键词和近义词列表。**【必须】传入标准的列表格式（例如 ["安装", "linux", "部署"]），绝对禁止仅传入单个字符串。如果需要获取整个词库时也必须传入一个空的列表[]
-        """
-        try:
-            # 1. 读取完整的内部词库
-            all_data = await self.json_dq("zdhf.json")
-            all_gjc = []
-            for item in all_data:
-                gjc = item.get("gjc", {})
-                if gjc:
-                    all_gjc.append(gjc)
-
-            # 2. 场景 A：AI 判断需要返回完整词库
-            if export_full:
-                result_text = f"以下为完整内部词库数据：\n```json\n{json.dumps(all_gjc, ensure_ascii=False, indent=2)}\n```"
-                return result_text
-
-            # 3. 场景 B：AI 判断只需检索部分词库（按近义词/关键词）
-            matched_data = []
-            if search_keywords:  # 如果 AI 拆解出了关键词列表
-                for item in all_gjc:
-                    for keyword, reply in item.items():
-                        for term in search_keywords:
-                            # 只要词库的关键字中包含了 AI 传回的关键词/近义词，就算匹配
-                            if term in keyword:
-                                matched_data.append(item)
-                                break  # 跳出内部循环，防止重复添加同一个 item
-
-            # 4. 封装返回值
-            if matched_data:
-                result_text = f"根据用户问题拆解出的关键词 {json.dumps(search_keywords)}，在词库中检索到以下相关规则：\n```json\n{json.dumps(matched_data, ensure_ascii=False, indent=2)}\n```"
-            else:
-                result_text = f"根据用户问题拆解出的关键词 {json.dumps(search_keywords)}，在词库中未检索到匹配条目。"
-
-            return result_text
-
-        except Exception as e:
-            logger.error(f"工具调用失败: {e}")
-            return "获取内部词库失败，请稍后重试。"
+            
