@@ -5,6 +5,12 @@
         "hint": "只会回复此范围内群聊的消息，换行分割可填写多个",
         "default": ""
     },
+    "qq_q_yjsfkq": {
+        "type": "bool",
+        "description": "意见反馈功能开关",
+        "hint": "开启后，用户通过私信发送的反馈内容将自动转发至指定的意见反馈接收群",
+        "default": true
+    },
     "qq_q_yj": {
         "type": "text",
         "description": "意见反馈接收群",
@@ -28,6 +34,12 @@
         "description": "最大验证次数",
         "hint": "错误次数上限，超过自动踢出",
         "default": 3
+    },
+    "qq_q_yzhy": {
+        "type": "text",
+        "description": "验证通过后发送的欢迎",
+        "hint": "验证通过后发送的欢迎",
+        "default": " 验证通过，欢迎加入群聊！"
     },
     "qq_q_html": {
         "type": "text",
