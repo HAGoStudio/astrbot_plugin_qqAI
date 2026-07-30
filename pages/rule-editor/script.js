@@ -190,6 +190,48 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (target.tagName === 'TEXTAREA') {
                 // 修改回复
                 opt[oldKeyword] = target.value;
+                const JUMP_REGEX = /:::(?:\d{3}|end)$/;
+                const rawValue = target.value;
+                const match = rawValue.match(JUMP_REGEX);
+            
+                if (match) {
+                    // 提取跳转值（如 "001" 或 "end"）
+                    const jumpValRaw = match[0].slice(3);
+                    let jumpVal;
+                    if (/^\d{3}$/.test(jumpValRaw)) {
+                        jumpVal = Number(jumpValRaw);          // 转为数字，去掉前导零
+                    } else if (jumpValRaw === 'end') {
+                        jumpVal = 'end';
+                    } else {
+                        jumpVal = jumpValRaw;                  // 兜底
+                    }
+
+            
+                    // 同步开关和下拉框
+                    const li = target.closest('ul');
+                    if (li) {
+                        const switchEl = li.querySelector('.tiaozhuan-switch');
+                        const selectEl = li.querySelector('.tiaozhuan-select');
+                        if (switchEl) {
+                            switchEl.checked = true;
+                            // 触发开关的 change 事件手动处理？直接修改属性即可，后续同步由 change 事件完成，这里我们先手动更新 select 显示
+                            if (selectEl) {
+                                selectEl.style.display = '';
+                                selectEl.value = jumpVal; // 假设下拉框 value 是去掉前导零的数字，需匹配
+                            }
+                        }
+                    }
+                } else {
+                    // 没有跳转后缀：数据直接存储，同时关闭跳转开关
+                    opt[oldKeyword] = rawValue;
+                    const li = target.closest('ul');
+                    if (li) {
+                        const switchEl = li.querySelector('.tiaozhuan-switch');
+                        const selectEl = li.querySelector('.tiaozhuan-select');
+                        if (switchEl) switchEl.checked = false;
+                        if (selectEl) selectEl.style.display = 'none';
+                    }
+                }
             }
             // 数据已更新，无需重绘
         });
@@ -274,6 +316,56 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+        dllb.addEventListener('change', function(e) {
+            const target = e.target;
+            const round = target.dataset.round;
+            const optIdx = parseInt(target.dataset.optidx, 10);
+            if (!round || isNaN(optIdx)) return;
+    
+            const rule = zdhf_data[zdhf_xzxm];
+            if (!rule || !rule.jtc || !rule.jtc[round]) return;
+            const opt = rule.jtc[round][optIdx];
+            const oldKey = Object.keys(opt)[0];
+            let reply = opt[oldKey];
+    
+            if (target.classList.contains('tiaozhuan-switch')) {
+                const selectEl = target.closest('li').querySelector('.tiaozhuan-select');
+                if (target.checked) {
+                    // 检查是否已有跳转后缀（数字或 end）
+                    if (!/:::(?:\d{3}|end)$/.test(reply)) {
+                        const selectedVal = selectEl ? selectEl.value : (Object.keys(rule.jtc).sort((a,b)=>Number(a)-Number(b))[0] || '1');
+                        let suffix;
+                        if (selectedVal === 'end') {
+                            suffix = ':::end';
+                        } else {
+                            suffix = ':::' + String(selectedVal).padStart(3, '0');
+                        }
+                        reply = reply + suffix;
+                    }
+                    if (selectEl) selectEl.style.display = '';
+                } else {
+                    // 关闭开关：移除末尾 ::数字
+                    reply = reply.replace(/:::(?:\d{3}|end)$/, '');
+                    if (selectEl) selectEl.style.display = 'none';
+                }
+                opt[oldKey] = reply;
+                // 不需要更新 textarea，因为它不显示后缀
+            } 
+            else if (target.classList.contains('tiaozhuan-select')) {
+                const suffixMatch = reply.match(/:::(?:\d{3}|end)$/);
+                if (suffixMatch) {
+                    const newValue = target.value;          // "end" 或数字字符串
+                    let newSuffix;
+                    if (newValue === 'end') {
+                        newSuffix = ':::end';
+                    } else {
+                        newSuffix = ':::' + String(newValue).padStart(3, '0');
+                    }
+                    reply = reply.replace(/:::(?:\d{3}|end)$/, newSuffix);
+                    opt[oldKey] = reply;
+                }
+            }
+        })
     }
 })
         
@@ -396,6 +488,23 @@ function zdhf_qtlcdh(jtc) {
         options.forEach((opt, index) => {
             const keyword = Object.keys(opt)[0];  // 提取键（关键词）
             const reply = opt[keyword];           // 提取值（回复内容）
+            
+            // 解析回复末尾是否包含 :::数字 格式
+            const jumpMatch = reply.match(/:::(?:\d{3}|end)$/);
+            const hasJump = !!jumpMatch;
+            const jumpTarget = hasJump ? jumpMatch[0].slice(3) : ''; // "001" 或 "end"
+        
+            // 生成轮次下拉框选项
+            const allRounds = Object.keys(jtc).sort((a, b) => Number(a) - Number(b));
+            let selectOptions = '';
+            allRounds.forEach(r => {
+                // 确保三位数字显示
+                const roundNum = String(r).padStart(3, '0');
+                const selected = (jumpTarget === roundNum) ? ' selected' : '';
+                selectOptions += `<option value="${r}"${selected}>第${r}轮</option>`;
+            });
+            const endSelected = (jumpTarget === 'end') ? ' selected' : '';
+            selectOptions += `<option value="end"${endSelected}>结束</option>`;
             html += `
                 <ul>
                     <li class="ycxf-bjl">
@@ -415,6 +524,16 @@ function zdhf_qtlcdh(jtc) {
                     <li class="bjx-srk">
                         <span class="js">回复内容</span>
                         <textarea  data-round="${roundKey}" data-optidx="${index}" row="3" style="resize: vertical;" class="yc-srk" placeholder="请输入文字或HTML...">${reply}</textarea>
+                    </li>
+                    <li style="margin-top: 10px;" class="bjx-srk">
+                        <span class="js">跳转至其他轮次或结束多轮对话</span>
+                        <label class="kgdb">
+                            <input class="tiaozhuan-switch kg" type="checkbox" data-round="${roundKey}" data-optidx="${index}" ${hasJump ? 'checked' : ''}>
+                            <span class="kg-hk"></span>
+                        </label>
+                        <select class="tiaozhuan-select yc-srk" data-round="${roundKey}" data-optidx="${index}" style="width:15%; ${hasJump ? '' : 'display:none;'} padding: 5px 9px;">
+                            ${selectOptions}
+                        </select>
                     </li>
                 </ul>
             `;

@@ -189,7 +189,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 opt[newKeyword] = oldReply;
             } else if (target.tagName === 'TEXTAREA') {
                 // 修改回复
-                opt[oldKeyword] = target.value;
+                const rawValue = target.value;
+                const JUMP_REGEX = /:::(?:\d{3}|end)$/;
+                const match = rawValue.match(JUMP_REGEX);
+            
+                if (match) {
+                    // 提取跳转值（如 "001" 或 "end"）
+                    const jumpValRaw = match[0].slice(3);
+                    let jumpVal;
+                    if (/^\d{3}$/.test(jumpValRaw)) {
+                        jumpVal = Number(jumpValRaw);
+                    } else if (jumpValRaw === 'end') {
+                        jumpVal = 'end';
+                    } else {
+                        jumpVal = jumpValRaw;
+                    }
+            
+                    // 保存完整回复（含后缀）
+                    opt[oldKeyword] = rawValue;
+            
+                    // 同步开关和下拉框
+                    const li = target.closest('ul');
+                    if (li) {
+                        const switchEl = li.querySelector('.tiaozhuan-switch');
+                        const selectEl = li.querySelector('.tiaozhuan-select');
+                        if (switchEl) {
+                            switchEl.checked = true;
+                        }
+                        if (selectEl) {
+                            selectEl.style.display = '';
+                            selectEl.value = jumpVal;
+                        }
+                    }
+                } else {
+                    // 无跳转后缀：直接保存，关闭开关
+                    opt[oldKeyword] = rawValue;
+                    const li = target.closest('ul');
+                    if (li) {
+                        const switchEl = li.querySelector('.tiaozhuan-switch');
+                        const selectEl = li.querySelector('.tiaozhuan-select');
+                        if (switchEl) switchEl.checked = false;
+                        if (selectEl) selectEl.style.display = 'none';
+                    }
+                }
             }
             // 数据已更新，无需重绘
         });
@@ -271,6 +313,52 @@ document.addEventListener('DOMContentLoaded', function() {
                     const newKey = String(maxKey + 1);
                     rule.jtc[newKey] = [{ "新选项": "新回复" }];
                     zdsc_qtlcdh(rule.jtc);
+                }
+            }
+        });
+        dllb.addEventListener('change', function(e) {
+            const target = e.target;
+            const round = target.dataset.round;
+            const optIdx = parseInt(target.dataset.optidx, 10);
+            if (!round || isNaN(optIdx)) return;
+        
+            const rule = zdsc_data[zdsc_xzxm];
+            if (!rule || !rule.jtc || !rule.jtc[round]) return;
+            const opt = rule.jtc[round][optIdx];
+            const oldKey = Object.keys(opt)[0];
+            let reply = opt[oldKey];
+        
+            if (target.classList.contains('tiaozhuan-switch')) {
+                const selectEl = target.closest('li').querySelector('.tiaozhuan-select');
+                if (target.checked) {
+                    if (!/:::(?:\d{3}|end)$/.test(reply)) {
+                        const selectedVal = selectEl ? selectEl.value : (Object.keys(rule.jtc).sort((a,b)=>Number(a)-Number(b))[0] || '1');
+                        let suffix;
+                        if (selectedVal === 'end') {
+                            suffix = ':::end';
+                        } else {
+                            suffix = ':::' + String(selectedVal).padStart(3, '0');
+                        }
+                        reply = reply + suffix;
+                    }
+                    if (selectEl) selectEl.style.display = '';
+                } else {
+                    reply = reply.replace(/:::(?:\d{3}|end)$/, '');
+                    if (selectEl) selectEl.style.display = 'none';
+                }
+                opt[oldKey] = reply;
+            } else if (target.classList.contains('tiaozhuan-select')) {
+                const suffixMatch = reply.match(/:::(?:\d{3}|end)$/);
+                if (suffixMatch) {
+                    const newValue = target.value;
+                    let newSuffix;
+                    if (newValue === 'end') {
+                        newSuffix = ':::end';
+                    } else {
+                        newSuffix = ':::' + String(newValue).padStart(3, '0');
+                    }
+                    reply = reply.replace(/:::(?:\d{3}|end)$/, newSuffix);
+                    opt[oldKey] = reply;
                 }
             }
         });
@@ -396,6 +484,21 @@ function zdsc_qtlcdh(jtc) {
         options.forEach((opt, index) => {
             const keyword = Object.keys(opt)[0];  // 提取键（关键词）
             const reply = opt[keyword];           // 提取值（回复内容）
+            // 解析回复末尾是否包含跳转后缀
+            const jumpMatch = reply.match(/:::(?:\d{3}|end)$/);
+            const hasJump = !!jumpMatch;
+            const jumpTarget = hasJump ? jumpMatch[0].slice(3) : '';
+            
+            // 生成轮次下拉框选项（包含“结束”）
+            const allRounds = Object.keys(jtc).sort((a, b) => Number(a) - Number(b));
+            let selectOptions = '';
+            allRounds.forEach(r => {
+                const roundNum = String(r).padStart(3, '0');
+                const selected = (jumpTarget === roundNum) ? ' selected' : '';
+                selectOptions += `<option value="${r}"${selected}>第${r}轮</option>`;
+            });
+            const endSelected = (jumpTarget === 'end') ? ' selected' : '';
+            selectOptions += `<option value="end"${endSelected}>结束</option>`;
             html += `
                 <ul>
                     <li class="ycxf-bjl">
@@ -415,6 +518,16 @@ function zdsc_qtlcdh(jtc) {
                     <li class="bjx-srk">
                         <span class="js">回复内容</span>
                         <textarea  data-round="${roundKey}" data-optidx="${index}" row="3" style="resize: vertical;" class="yc-srk" placeholder="请输入文字或HTML...">${reply}</textarea>
+                    </li>
+                    <li style="margin-top: 10px;" class="bjx-srk">
+                        <span class="js">跳转至其他轮次或结束多轮对话</span>
+                        <label class="kgdb">
+                            <input class="tiaozhuan-switch kg" type="checkbox" data-round="${roundKey}" data-optidx="${index}" ${hasJump ? 'checked' : ''}>
+                            <span class="kg-hk"></span>
+                        </label>
+                        <select class="tiaozhuan-select yc-srk" data-round="${roundKey}" data-optidx="${index}" style="width:15%; ${hasJump ? '' : 'display:none;'} padding: 5px 9px;">
+                            ${selectOptions}
+                        </select>
                     </li>
                 </ul>
             `;
