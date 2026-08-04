@@ -1,9 +1,9 @@
 name: "astrbot_plugin_qqAI"
 author: "HAGo"
 display_name: "QQ消息处理功能插件"
-version: "1.4.0"
+version: "1.4.1"
 desc: "一个基于 AstrBot的 插件，用于处理 QQ 消息，支持关键词自动回复和多轮轮对话和基于现有关键词简略学习能力（不是ai！）"
 support_platforms:
   - aiocqhttp
-astrbot_version: ">=4.26.0,<4.27.0"
+astrbot_version: ">=4.26.0,<4.28.0"
 repo: https://github.com/HAGoStudio/astrbot_plugin_qqAI
