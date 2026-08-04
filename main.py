@@ -16,7 +16,7 @@ from astrbot.api.message_components import Plain
 from astrbot.api.star import Context, Star, register
 from astrbot.api.web import error_response, json_response, request
 
-@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.4.0")
+@register("astrbot_plugin_qqAI", "HAGo", "QQ消息处理功能插件", "v1.4.1")
 class MyPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
